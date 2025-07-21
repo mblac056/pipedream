@@ -159,9 +159,35 @@ function App() {
 
         {/* Note Buttons - back in the card, responsive grid */}
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4 text-center">Bagpipe Notes</h2>
-          <div className="text-center text-sm text-gray-500 mb-4">
-            Use keyboard: A S D F G H J K L
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-700">Bagpipe Notes</h2>
+            <div className="relative group">
+              <button className="text-gray-400 hover:text-gray-600 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+              <div className="absolute right-0 top-6 w-64 bg-gray-800 text-white text-sm rounded-lg p-3 shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                <div className="space-y-2">
+                  <div>
+                    <strong>Keyboard Shortcuts:</strong>
+                    <div className="font-mono text-xs mt-1">A S D F G H J K L</div>
+                  </div>
+                  <div>
+                    <strong>Features:</strong>
+                    <ul className="text-xs mt-1 space-y-1">
+                      <li>• Click notes or use keyboard to compose</li>
+                      <li>• Click notes in your tune to play them</li>
+                      <li>• Use × buttons to remove individual notes</li>
+                      <li>• Toggle drones for authentic bagpipe sound</li>
+                      <li>• Save tunes in the side drawer</li>
+                      <li>• Share tunes with simple letter codes</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="absolute top-0 right-2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-800 transform -translate-y-1"></div>
+              </div>
+            </div>
           </div>
           <div className="grid grid-cols-5 md:grid-cols-9 gap-2 mb-4">
             {NOTE_KEYS.map((noteKey, idx) => {
@@ -182,7 +208,6 @@ function App() {
                   title={`${PIPE_NOTES[idx]} (${keyboardKey.toUpperCase()})`}
                 >
                   <div className="whitespace-pre-line">{label}</div>
-                  <div className="text-xs text-gray-500 mt-1 font-mono">{keyboardKey.toUpperCase()}</div>
                 </button>
               );
             })}
