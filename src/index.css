@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles that work with Tailwind */
+body {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Note button animations */
+@keyframes notePlay {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.note-playing {
+  animation: notePlay 0.3s ease-in-out;
+}
+
+/* Tune note animations */
+@keyframes noteAdd {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.8) translateY(10px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+  }
+}
+
+.tune-note {
+  animation: noteAdd 0.3s ease-out;
+}
+
+/* Button hover animations */
+@keyframes buttonPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.button-pulse:hover {
+  animation: buttonPulse 0.2s ease-in-out;
+}
+
+/* Drawer slide animation (enhanced) */
+.drawer-slide {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fade in animation for content */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Focus styles for accessibility */
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for all interactive elements */
+button, input, .transition-all {
+  transition: all 0.2s ease-in-out;
+}
