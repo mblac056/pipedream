@@ -7,13 +7,41 @@ export function useShareableTune(
   setTune: (tune: NoteKey[]) => void,
   setSongName: (name: string) => void
 ) {
+  // Map note keys to letters: asdfghjkl
+  const noteToLetterMap: Record<NoteKey, string> = {
+    'G': 'a', // Low G
+    'A': 's', // Low A
+    'B': 'd', // B
+    'C': 'f', // C
+    'D': 'g', // D
+    'E': 'h', // E
+    'F': 'j', // F
+    'g': 'k', // High G
+    'a': 'l', // High A
+  };
+
+  // Map letters back to note keys
+  const letterToNoteMap: Record<string, NoteKey> = {
+    'a': 'G',
+    's': 'A',
+    'd': 'B',
+    'f': 'C',
+    'g': 'D',
+    'h': 'E',
+    'j': 'F',
+    'k': 'g',
+    'l': 'a',
+  };
+
   // Encode tune to URL when tune or songName changes
   useEffect(() => {
     if (tune.length > 0 || songName) {
-      const tuneData = { tune, songName };
-      const encoded = btoa(JSON.stringify(tuneData));
+      const tuneLetters = tune.map(note => noteToLetterMap[note]).join('');
       const url = new URL(window.location.href);
-      url.searchParams.set('tune', encoded);
+      url.searchParams.set('tune', tuneLetters);
+      if (songName) {
+        url.searchParams.set('name', songName);
+      }
       window.history.replaceState({}, '', url.toString());
     }
   }, [tune, songName]);
@@ -21,15 +49,22 @@ export function useShareableTune(
   // Decode tune from URL on mount
   useEffect(() => {
     const url = new URL(window.location.href);
-    const encodedTune = url.searchParams.get('tune');
+    const tuneLetters = url.searchParams.get('tune');
+    const name = url.searchParams.get('name');
     
-    if (encodedTune) {
+    if (tuneLetters) {
       try {
-        const tuneData = JSON.parse(atob(encodedTune));
-        if (tuneData.tune && Array.isArray(tuneData.tune)) {
-          setTune(tuneData.tune);
-          if (tuneData.songName) {
-            setSongName(tuneData.songName);
+        const decodedTune: NoteKey[] = [];
+        for (const letter of tuneLetters) {
+          const note = letterToNoteMap[letter];
+          if (note) {
+            decodedTune.push(note);
+          }
+        }
+        if (decodedTune.length > 0) {
+          setTune(decodedTune);
+          if (name) {
+            setSongName(name);
           }
         }
       } catch (error) {
@@ -40,10 +75,12 @@ export function useShareableTune(
 
   // Function to generate shareable link
   const generateShareLink = () => {
-    const tuneData = { tune, songName };
-    const encoded = btoa(JSON.stringify(tuneData));
+    const tuneLetters = tune.map(note => noteToLetterMap[note]).join('');
     const url = new URL(window.location.href);
-    url.searchParams.set('tune', encoded);
+    url.searchParams.set('tune', tuneLetters);
+    if (songName) {
+      url.searchParams.set('name', songName);
+    }
     return url.toString();
   };
 

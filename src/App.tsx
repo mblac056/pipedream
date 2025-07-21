@@ -8,6 +8,7 @@ import type { NoteKey, SavedTune } from "./types";
 import useLocalStorage from "./hooks/useLocalStorage";
 import { useAudioContext } from "./hooks/useAudioContext";
 import { useShareableTune } from "./hooks/useShareableTune";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 
 const PIPE_NOTES = ["Low G", "Low A", "B", "C", "D", "E", "F", "High G", "High A"];
 
@@ -111,6 +112,13 @@ function App() {
     }
   };
 
+  // Add keyboard shortcuts
+  useKeyboardShortcuts({
+    noteKeys: NOTE_KEYS,
+    onNoteKey: handleKey,
+    enabled: true
+  });
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       {/* Side Drawer Button */}
@@ -152,6 +160,9 @@ function App() {
         {/* Note Buttons - back in the card, responsive grid */}
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-700 mb-4 text-center">Bagpipe Notes</h2>
+          <div className="text-center text-sm text-gray-500 mb-4">
+            Use keyboard: A S D F G H J K L
+          </div>
           <div className="grid grid-cols-5 md:grid-cols-9 gap-2 mb-4">
             {NOTE_KEYS.map((noteKey, idx) => {
               let label = PIPE_NOTES[idx];
@@ -160,6 +171,7 @@ function App() {
               } else if (label.startsWith('High ')) {
                 label = label.replace('High ', 'High\n');
               }
+              const keyboardKey = ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'][idx];
               return (
                 <button
                   key={noteKey}
@@ -167,8 +179,10 @@ function App() {
                     playingNote === noteKey ? 'note-playing' : ''
                   }`}
                   onClick={() => handleKey(noteKey)}
+                  title={`${PIPE_NOTES[idx]} (${keyboardKey.toUpperCase()})`}
                 >
-                  {label}
+                  <div className="whitespace-pre-line">{label}</div>
+                  <div className="text-xs text-gray-500 mt-1 font-mono">{keyboardKey.toUpperCase()}</div>
                 </button>
               );
             })}
