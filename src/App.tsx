@@ -36,6 +36,9 @@ function App() {
   const { copyShareLink } = useShareableTune(tune, songName, setTune, setSongName);
   // Add state for note playing animation
   const [playingNote, setPlayingNote] = useState<NoteKey | null>(null);
+  // Add state for tune playback
+  const [currentPlayIndex, setCurrentPlayIndex] = useState<number>(-1);
+  const [playbackTimeout, setPlaybackTimeout] = useState<number | null>(null);
 
   useEffect(() => {
     localStorage.setItem("pipeTune", JSON.stringify(tune));
@@ -76,9 +79,9 @@ function App() {
     setTune([]);
   };
 
-  // Add a function to remove a note at a specific index
-  const removeNoteAt = (index: number) => {
-    setTune((prev) => prev.filter((_, i) => i !== index));
+  // Add function to delete last note
+  const deleteLastNote = () => {
+    setTune((prev) => prev.slice(0, -1));
   };
 
   const toggleDrones = () => {
@@ -112,10 +115,55 @@ function App() {
     }
   };
 
-  // Add keyboard shortcuts
+  // Function to play next note in sequence
+  const playNextNote = () => {
+    if (tune.length === 0) return;
+    
+    // Clear existing timeout
+    if (playbackTimeout) {
+      clearTimeout(playbackTimeout);
+    }
+    
+    // Calculate next index (loop back to 0 if at end)
+    const nextIndex = currentPlayIndex < 0 ? 0 : (currentPlayIndex + 1) % tune.length;
+    setCurrentPlayIndex(nextIndex);
+    
+    // Play the note
+    const noteToPlay = tune[nextIndex];
+    if (noteToPlay) {
+      playNote(noteToPlay);
+    }
+    
+    // Set timeout to reset after 10 seconds
+    const timeout = setTimeout(() => {
+      setCurrentPlayIndex(-1);
+    }, 10000);
+    setPlaybackTimeout(timeout);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (playbackTimeout) {
+        clearTimeout(playbackTimeout);
+      }
+    };
+  }, [playbackTimeout]);
+
+  // Reset playback when tune changes
+  useEffect(() => {
+    setCurrentPlayIndex(-1);
+    if (playbackTimeout) {
+      clearTimeout(playbackTimeout);
+      setPlaybackTimeout(null);
+    }
+  }, [tune]);
+
+  // Update keyboard shortcuts to include backspace
   useKeyboardShortcuts({
     noteKeys: NOTE_KEYS,
     onNoteKey: handleKey,
+    onDeleteLast: deleteLastNote,
     enabled: true
   });
 
@@ -178,7 +226,7 @@ function App() {
                     <ul className="text-xs mt-1 space-y-1">
                       <li>• Click notes or use keyboard to compose</li>
                       <li>• Click notes in your tune to play them</li>
-                      <li>• Use × buttons to remove individual notes</li>
+                      <li>• Use Backspace to delete last note</li>
                       <li>• Toggle drones for authentic bagpipe sound</li>
                       <li>• Save tunes in the side drawer</li>
                       <li>• Share tunes with simple letter codes</li>
@@ -226,6 +274,7 @@ function App() {
 
         {/* Tune Display */}
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-6">
+          {/* Update the tune display section with redesigned buttons */}
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-xl font-semibold text-gray-700">Your Tune</h2>
             <div className="flex gap-2">
@@ -233,9 +282,22 @@ function App() {
                 <button
                   onClick={handleShare}
                   title="Share Tune"
-                  className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded border border-blue-600 shadow-sm transition-colors"
+                  className="p-2 text-gray-500 hover:text-blue-600 transition-colors"
                 >
-                  Share
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                  </svg>
+                </button>
+              )}
+              {tune.length > 0 && (
+                <button
+                  onClick={deleteLastNote}
+                  title="Delete Last Note (Backspace)"
+                  className="p-2 text-gray-500 hover:text-red-600 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                  </svg>
                 </button>
               )}
               <button
@@ -252,27 +314,31 @@ function App() {
               <p className="text-lg">No notes yet. Click the buttons above to start composing!</p>
             </div>
           ) : (
-            <div className="flex flex-wrap gap-2 justify-center">
-              {tune.map((n: NoteKey, i: number) => (
-                <span key={i} className="relative inline-block tune-note">
+            <>
+              <div className="flex flex-wrap gap-2 justify-center mb-4">
+                {tune.map((n: NoteKey, i: number) => (
                   <button
-                    className="px-4 py-2 bg-gray-100 border border-gray-300 rounded font-medium text-gray-700 shadow-sm whitespace-pre-line hover:bg-blue-100 focus:outline-none button-pulse"
+                    key={i}
+                    className={`px-4 py-2 border border-gray-300 rounded font-medium text-gray-700 shadow-sm whitespace-pre-line hover:bg-blue-100 focus:outline-none button-pulse ${
+                      i === currentPlayIndex ? 'bg-yellow-200 border-yellow-400' : 'bg-gray-100'
+                    }`}
                     onClick={() => playNote(n)}
                     title={`Play ${PIPE_NOTES[NOTE_KEYS.indexOf(n)]}`}
                   >
                     {PIPE_NOTES[NOTE_KEYS.indexOf(n)] || n}
                   </button>
-                  <button
-                    onClick={() => removeNoteAt(i)}
-                    title="Remove Note"
-                    className="absolute -top-2 -right-2 bg-white border border-gray-300 rounded-full p-1 text-xs text-gray-500 hover:text-red-600 shadow button-pulse"
-                    style={{ lineHeight: 1 }}
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
+                ))}
+              </div>
+              <div className="text-center">
+                <button
+                  onClick={playNextNote}
+                  title="Play Next Note in Sequence"
+                  className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg border border-green-600 shadow-sm transition-colors"
+                >
+                  ▶ Play
+                </button>
+              </div>
+            </>
           )}
           {tune.length > 0 && (
             <div className="text-center mt-4 text-sm text-gray-500">

@@ -4,12 +4,14 @@ import type { NoteKey } from "../types";
 interface UseKeyboardShortcutsProps {
   noteKeys: readonly NoteKey[];
   onNoteKey: (noteKey: NoteKey) => void;
+  onDeleteLast: () => void;
   enabled: boolean;
 }
 
 export function useKeyboardShortcuts({
   noteKeys,
   onNoteKey,
+  onDeleteLast,
   enabled
 }: UseKeyboardShortcutsProps) {
   useEffect(() => {
@@ -40,10 +42,17 @@ export function useKeyboardShortcuts({
       if (keyToNoteMap[key]) {
         event.preventDefault();
         onNoteKey(keyToNoteMap[key]);
+        return;
+      }
+
+      // Handle backspace to delete last note
+      if (key === 'backspace') {
+        event.preventDefault();
+        onDeleteLast();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [noteKeys, onNoteKey, enabled]);
+  }, [noteKeys, onNoteKey, onDeleteLast, enabled]);
 } 
