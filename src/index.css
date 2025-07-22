@@ -4,7 +4,7 @@
 
 /* Custom styles that work with Tailwind */
 body {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Quicksand, system-ui, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
