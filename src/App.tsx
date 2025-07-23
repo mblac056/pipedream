@@ -40,18 +40,20 @@ function App() {
   const [currentPlayIndex, setCurrentPlayIndex] = useState<number>(-1);
   const [playbackTimeout, setPlaybackTimeout] = useState<number | null>(null);
 
-  useEffect(() => {
-    localStorage.setItem("pipeTune", JSON.stringify(tune));
-  }, [tune]);
-
-  useEffect(() => {
-    localStorage.setItem("songName", songName);
-  }, [songName]);
+  // Note: useLocalStorage hook handles localStorage automatically
+  // No need for manual localStorage operations here
 
   useEffect(() => {
     // Load saved tunes from localStorage on mount
-    const tunes = JSON.parse(localStorage.getItem("savedTunes") || "[]");
-    setSavedTunes(tunes);
+    try {
+      const tunes = JSON.parse(localStorage.getItem("savedTunes") || "[]");
+      setSavedTunes(tunes);
+    } catch (error) {
+      console.error("Error loading saved tunes:", error);
+      // If there's an error, clear corrupted data and start fresh
+      localStorage.removeItem("savedTunes");
+      setSavedTunes([]);
+    }
   }, [setSavedTunes]);
 
   const toggleDrawer = () => setDrawerOpen(!drawerOpen);
