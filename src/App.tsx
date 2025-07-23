@@ -77,6 +77,10 @@ function App() {
 
   const clearTune = () => {
     setTune([]);
+    // clear the song name
+    setSongName("");
+    //Clear the tune from the URL
+    window.history.replaceState({}, "", window.location.pathname);
   };
 
   // Add function to delete last note

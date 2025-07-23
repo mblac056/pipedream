@@ -33,9 +33,12 @@ export function useAudioContext() {
     const context = getContext();
     if (play && !droneOscillator) {
       const oscillator = context.createOscillator();
+      const gainNode = context.createGain();
       oscillator.type = 'square';
       oscillator.frequency.setValueAtTime(frequency, context.currentTime);
-      oscillator.connect(context.destination);
+      gainNode.gain.setValueAtTime(0.15, context.currentTime); // Half volume
+      oscillator.connect(gainNode);
+      gainNode.connect(context.destination);
       oscillator.start();
       setDroneOscillator(oscillator);
     } else if (!play && droneOscillator) {

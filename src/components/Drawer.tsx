@@ -72,7 +72,7 @@ const Drawer: React.FC<DrawerProps> = ({
         <div className="px-2 py-4 border-t">
           <div className="flex gap-2">
             <input
-              className="flex-1 p-1 border border-gray-300 rounded"
+              className="flex-0.5 p-1 border border-gray-300 rounded"
               value={songName}
               onChange={(e) => setSongName(e.target.value)}
               placeholder="Save this tune as..."
