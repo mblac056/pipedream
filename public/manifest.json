@@ -9,13 +9,13 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/bagpipe-icon.svg",
+      "src": "/pipedream.png",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/bagpipe-icon-192.png",
+      "src": "/pipedream-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },

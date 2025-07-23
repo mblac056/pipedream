@@ -63,9 +63,9 @@ function App() {
     closeDrawer();
   };
 
-  const playNote = (noteKey: NoteKey) => {
+  const playNote = async (noteKey: NoteKey) => {
     setPlayingNote(noteKey);
-    playNoteRaw(NOTE_FREQUENCIES[noteKey], noteDuration);
+    await playNoteRaw(NOTE_FREQUENCIES[noteKey], noteDuration);
     setTimeout(() => setPlayingNote(null), 300); // Reset after animation
   };
 
@@ -88,8 +88,8 @@ function App() {
     setTune((prev) => prev.slice(0, -1));
   };
 
-  const toggleDrones = () => {
-    toggleDronesRaw(!playDrones, 240.0); // 240Hz for A drone
+  const toggleDrones = async () => {
+    await toggleDronesRaw(!playDrones, 240.0); // 240Hz for A drone
     setPlayDrones((prev) => !prev);
   };
 
@@ -120,7 +120,7 @@ function App() {
   };
 
   // Function to play next note in sequence
-  const playNextNote = () => {
+  const playNextNote = async () => {
     if (tune.length === 0) return;
     
     // Clear existing timeout
@@ -135,7 +135,7 @@ function App() {
     // Play the note
     const noteToPlay = tune[nextIndex];
     if (noteToPlay) {
-      playNote(noteToPlay);
+      await playNote(noteToPlay);
     }
     
     // Set timeout to reset after 10 seconds

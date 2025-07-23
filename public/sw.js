@@ -3,7 +3,7 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/bagpipe-icon.svg'
+  '/pipedream.png'
 ];
 
 self.addEventListener('install', (event) => {
